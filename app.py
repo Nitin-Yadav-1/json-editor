@@ -133,6 +133,8 @@ class CaseEditor:
             self.saveAsActionHandler()
         else:
             self.model.saveFile(currIndex, self.ui.tabToDict(currIndex))
+            filePath = self.model.filePath(currIndex)
+            self.ui.statusBar.showMessage(f"File saved : {filePath}", TEMP_MSG_TIMEOUT)
 
     def saveAsActionHandler(self):
         currIndex = self.ui.tabList.currentIndex()
@@ -151,6 +153,7 @@ class CaseEditor:
             dataDict = self.ui.tabToDict(currIndex)
             self.model.saveAsFile(currIndex, dataDict, filePath)
             self.ui.setTabName(currIndex, filePath.split("/")[-1])
+            self.ui.statusBar.showMessage(f"File Saved As : {filePath}", TEMP_MSG_TIMEOUT)
 
     def closeActionHandler(self):
         self.ui.close()

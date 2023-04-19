@@ -42,5 +42,8 @@ class Model:
     def areChangesSaved(self, index : int) -> bool:
         return self.tabDataList[index].areChangesSaved
 
+    def filePath(self, index : int) -> str:
+        return self.tabDataList[index].filePath
+
     def closeFile(self, index : int) -> None:
         self.tabDataList.pop(index)
