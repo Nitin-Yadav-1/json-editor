@@ -1,0 +1,6 @@
+__pycache__
+OpenFOAM
+venv
+jsonfiles
+
+explore.py
