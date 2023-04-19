@@ -13,6 +13,7 @@ from model import Model
 
 # GLOBALS
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
+TEMP_MSG_TIMEOUT = 3000
 
 
 class CaseEditor:
@@ -56,6 +57,7 @@ class CaseEditor:
         deletionCount = self.ui.deleteCurrentSelectedItems()
         if( deletionCount > 0 ):
             self.model.setChangesSaved(False, currIndex)
+        self.ui.statusBar.showMessage(f"{deletionCount} items deleted.", TEMP_MSG_TIMEOUT)
 
     def insertActionHandler(self):
         currIndex = self.ui.tabList.currentIndex()
@@ -64,6 +66,7 @@ class CaseEditor:
         insertionCount = self.ui.insertCurrentSelectedItems()
         if( insertionCount > 0 ):
             self.model.setChangesSaved(False, currIndex)
+        self.ui.statusBar.showMessage(f"{insertionCount} items inserted.", TEMP_MSG_TIMEOUT)
 
     def replaceActionHandler(self):
         currIndex = self.ui.tabList.currentIndex()
@@ -72,6 +75,7 @@ class CaseEditor:
         replaceCount = self.ui.replaceCurrentSelectedItems()
         if( replaceCount > 0 ):
             self.model.setChangesSaved(False, currIndex)
+        self.ui.statusBar.showMessage(f"{replaceCount} items replaced.", TEMP_MSG_TIMEOUT)
 
     def selectAllActionHandler(self):
         self.ui.setCheckedAllCurrentItems(True)
@@ -118,6 +122,7 @@ class CaseEditor:
             tabName = filePath.split("/")[-1]
             tabData = self.model.openFile(filePath)
             self.ui.createTab(tabName, tabData)
+            self.ui.statusBar.showMessage(f"File opened : {filePath}", TEMP_MSG_TIMEOUT)
 
     def saveActionHandler(self):
         currIndex = self.ui.tabList.currentIndex()

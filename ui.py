@@ -37,6 +37,7 @@ class UI(QMainWindow):
     def _createProperties(self):
         self.menuBar = self.menuBar()
         self.toolBar = self.addToolBar("")
+        self.statusBar = self.statusBar()
         self.tabList = QTabWidget()
         
         self.newAction = QAction("&New", self)
