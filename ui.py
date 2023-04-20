@@ -13,7 +13,8 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QLineEdit,
     QPushButton,
-    QMessageBox
+    QMessageBox,
+    QFontDialog
 )
 
 from PySide6.QtGui import (
@@ -35,21 +36,34 @@ class UI(QMainWindow):
         self.show()
 
     def _createProperties(self):
+        self.mainFont = self.font()
+        self.tabFont = self.font()
+
+        self.fileMenu = None
+        self.editMenu = None
+        self.viewMenu = None
         self.menuBar = self.menuBar()
         self.toolBar = self.addToolBar("")
         self.statusBar = self.statusBar()
         self.tabList = QTabWidget()
         
+        # file menu actions
         self.newAction = QAction("&New", self)
         self.openAction = QAction("&Open", self)
         self.saveAction = QAction("&Save", self)
         self.saveAsAction = QAction("S&ave As", self)
         self.closeAction = QAction("&Close", self)
 
+        # edit menu actions
         self.deleteAction = QAction("&Delete", self)
         self.insertAction = QAction("&Insert", self)
         self.replaceAction = QAction("&Replace", self)
 
+        # view menu actions
+        self.setMenuBarFontAction = QAction("Set &Menu Font", self)
+        self.setBodyFontAction = QAction("Set &Body Font", self)
+
+        # toolbar actions
         self.selectAllAction = QAction("Select All", self)
         self.unselectAllAction = QAction("Unselect All", self)
         self.collapseAllAction = QAction("Collapse All", self)
@@ -57,21 +71,25 @@ class UI(QMainWindow):
 
     def _setupMenuBar(self):
         # create 'File' menu
-        fileMenu = self.menuBar.addMenu("&File")
-        fileMenu.addAction(self.newAction)
-        fileMenu.addAction(self.openAction)
-        fileMenu.addAction(self.saveAction)
-        fileMenu.addAction(self.saveAsAction)
-        fileMenu.addAction(self.closeAction)
+        self.fileMenu = self.menuBar.addMenu("&File")
+        self.fileMenu.addAction(self.newAction)
+        self.fileMenu.addAction(self.openAction)
+        self.fileMenu.addAction(self.saveAction)
+        self.fileMenu.addAction(self.saveAsAction)
+        self.fileMenu.addAction(self.closeAction)
         
         # create 'Edit' menu
-        editMenu = self.menuBar.addMenu("&Edit")
-        editMenu.addAction(self.deleteAction)
-        editMenu.addAction(self.insertAction)
-        editMenu.addAction(self.replaceAction)
+        self.editMenu = self.menuBar.addMenu("&Edit")
+        self.editMenu.addAction(self.deleteAction)
+        self.editMenu.addAction(self.insertAction)
+        self.editMenu.addAction(self.replaceAction)
         
         # create 'View' menu
-        viewMenu = self.menuBar.addMenu("&View")
+        self.viewMenu = self.menuBar.addMenu("&View")
+        self.viewMenu.addAction(self.setMenuBarFontAction)
+        self.viewMenu.addAction(self.setBodyFontAction)
+        self.setMenuBarFontAction.triggered.connect(self.setMenuBarFontActionHandler)
+        self.setBodyFontAction.triggered.connect(self.setBodyFontActionHandler)
 
     def _setupToolBar(self):
         self.toolBar.setMovable(False)
@@ -101,16 +119,30 @@ class UI(QMainWindow):
         self.toolBar.addWidget(expandAllButton)
         self.toolBar.addSeparator()
 
-    def selectAllActionHandler(self):
+    def setMenuBarFontActionHandler(self) -> None:
+        _, font = QFontDialog.getFont(self.mainFont, self, "Choose Font")
+        self.mainFont = font
+        self.setFont(self.mainFont)
+        self.fileMenu.setFont(self.mainFont)
+        self.editMenu.setFont(self.mainFont)
+        self.viewMenu.setFont(self.mainFont)
+        self.tabList.setFont(self.tabFont)
+
+    def setBodyFontActionHandler(self) -> None:
+        _, font = QFontDialog.getFont(self.tabFont, self, "Choose Font")
+        self.tabFont = font
+        self.tabList.setFont(self.tabFont)
+
+    def selectAllActionHandler(self) -> None:
         self.setCheckedAllCurrentItems(True)
 
-    def unselectAllActionHandler(self):
+    def unselectAllActionHandler(self) -> None:
         self.setCheckedAllCurrentItems(False)
 
-    def collapseAllActionHandler(self):
+    def collapseAllActionHandler(self) -> None:
         self.setExpandedAllCurrentItems(False)
 
-    def expandAllActionHandler(self):
+    def expandAllActionHandler(self) -> None:
         self.setExpandedAllCurrentItems(True)
 
     def getCurrentSelectedItems(self) -> list:
