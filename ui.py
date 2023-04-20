@@ -78,24 +78,40 @@ class UI(QMainWindow):
         self.toolBar.setFloatable(False)
 
         selectAllButton = QPushButton("Select All")
+        self.selectAllAction.triggered.connect(self.selectAllActionHandler)
         selectAllButton.clicked.connect(self.selectAllAction.trigger)
         self.toolBar.addWidget(selectAllButton)
         self.toolBar.addSeparator()
 
         unselectAllButton = QPushButton("Unselect All")
+        self.unselectAllAction.triggered.connect(self.unselectAllActionHandler)
         unselectAllButton.clicked.connect(self.unselectAllAction.trigger)
         self.toolBar.addWidget(unselectAllButton)
         self.toolBar.addSeparator()
 
         collapseAllButton = QPushButton("Collapse All")
+        self.collapseAllAction.triggered.connect(self.collapseAllActionHandler)
         collapseAllButton.clicked.connect(self.collapseAllAction.trigger)
         self.toolBar.addWidget(collapseAllButton)
         self.toolBar.addSeparator()
 
         expandAllButton = QPushButton("Expand All")
+        self.expandAllAction.triggered.connect(self.expandAllActionHandler)
         expandAllButton.clicked.connect(self.expandAllAction.trigger)
         self.toolBar.addWidget(expandAllButton)
         self.toolBar.addSeparator()
+
+    def selectAllActionHandler(self):
+        self.setCheckedAllCurrentItems(True)
+
+    def unselectAllActionHandler(self):
+        self.setCheckedAllCurrentItems(False)
+
+    def collapseAllActionHandler(self):
+        self.setExpandedAllCurrentItems(False)
+
+    def expandAllActionHandler(self):
+        self.setExpandedAllCurrentItems(True)
 
     def getCurrentSelectedItems(self) -> list:
         selectedItems = []

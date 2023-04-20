@@ -44,12 +44,6 @@ class CaseEditor:
         self.ui.insertAction.triggered.connect(self.insertActionHandler)
         self.ui.replaceAction.triggered.connect(self.replaceActionHandler)
 
-        # toolbar actions
-        self.ui.selectAllAction.triggered.connect(self.selectAllActionHandler)
-        self.ui.unselectAllAction.triggered.connect(self.unselectAllActionHandler)
-        self.ui.collapseAllAction.triggered.connect(self.collapseAllActionHandler)
-        self.ui.expandAllAction.triggered.connect(self.expandAllActionHandler)
-
     def deleteActionHandler(self):
         currIndex = self.ui.tabList.currentIndex()
         if( currIndex < 0 ):
@@ -76,18 +70,6 @@ class CaseEditor:
         if( replaceCount > 0 ):
             self.model.setChangesSaved(False, currIndex)
         self.ui.statusBar.showMessage(f"{replaceCount} items replaced.", TEMP_MSG_TIMEOUT)
-
-    def selectAllActionHandler(self):
-        self.ui.setCheckedAllCurrentItems(True)
-
-    def unselectAllActionHandler(self):
-        self.ui.setCheckedAllCurrentItems(False)
-
-    def collapseAllActionHandler(self):
-        self.ui.setExpandedAllCurrentItems(False)
-
-    def expandAllActionHandler(self):
-        self.ui.setExpandedAllCurrentItems(True)
 
     def tabClose(self, index):
         if( self.model.isUntitledFile(index) ):
