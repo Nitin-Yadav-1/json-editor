@@ -5,7 +5,7 @@ import json
 class TabData:
     def __init__(self, filePath=""):
         self.filePath = filePath
-        self.areChangesSaved = False
+        self.areChangesSaved = True
 
 
 class Model:
