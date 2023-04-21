@@ -14,13 +14,18 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QMessageBox,
-    QFontDialog
+    QFontDialog,
+    QWidget,
+    QHBoxLayout,
+    QLabel
 )
 
 from PySide6.QtGui import (
     QFont,
     QAction
 )
+
+import parser
 
 
 class UI(QMainWindow):
@@ -207,15 +212,21 @@ class UI(QMainWindow):
 
         # insert into tree widget
         for item in selectedItems:
-            item.setText(1,"")
+            tree.removeItemWidget(item, 1)
             for pair in pairs:
                 key,val = pair
                 widget = QTreeWidgetItem()
-                widget.setText(1,val)
                 item.addChild(widget)
-                checkbox = QCheckBox(key)
-                checkbox.setAutoFillBackground(True)
-                tree.setItemWidget(widget, 0, checkbox)
+
+                keyWidget = QCheckBox(key)
+                tree.setItemWidget(widget, 0, keyWidget)
+
+                valWidget = QWidget()
+                label = QLabel(val)
+                layout = QHBoxLayout(valWidget)
+                layout.setContentsMargins(0,0,0,0)
+                layout.addWidget(label)
+                tree.setItemWidget(widget, 1, valWidget)
 
         return len(selectedItems) * len(pairs)
 
@@ -237,7 +248,7 @@ class UI(QMainWindow):
         for index,item in enumerate(selected):
             if( item.childCount() == 0 ):
                 keyText = tree.itemWidget(item,0).text()
-                valText = item.text(1)
+                valText = tree.itemWidget(item,1).layout().itemAt(0).widget().text()
                 data[index] = [keyText,valText,True]
             else:
                 keyText = tree.itemWidget(item,0).text()
@@ -246,7 +257,8 @@ class UI(QMainWindow):
         Dialog.replaceDialog(self, data)
         for index,item in enumerate(selected):
             tree.itemWidget(item,0).setText(data[index][0])
-            item.setText(1, data[index][1])
+            if( item.childCount() == 0 ):
+                tree.itemWidget(item,1).layout().itemAt(0).widget().setText(data[index][1])
 
         return len(selected)
 
@@ -274,42 +286,31 @@ class UI(QMainWindow):
 
     def createTab(self, tabName : str, tabData : dict) -> None:
 
-        def recursive_build(treeWidget, curr, parent):
-            if( type(curr) is not dict ):
-                text = None
-                if( type(curr) is list ):
-                    text = ", ".join(map(str,curr))
+        def recursiveBuild(root : QTreeWidgetItem, data : dict) -> None:
+            for key,val in data.items():
+                item = QTreeWidgetItem()
+                root.addChild(item)
+                if( type(val) is dict ):
+                    recursiveBuild(item, val)
                 else:
-                    text = str(curr)
-                parent.setText(1,text)
-                return
+                    text = parser.toText(val)
+                    container = QWidget()
+                    layout = QHBoxLayout(container)
+                    layout.setContentsMargins(0,0,0,0)
+                    valLabel = QLabel(text)
+                    layout.addWidget(valLabel)
+                    tree.setItemWidget(item, 1, container)
 
-            for key, val in curr.items():
-                w = QTreeWidgetItem([key])
-                parent.addChild(w)
-                recursive_build(treeWidget, val, w)
-                
-                checkbox = QCheckBox(key)
-                checkbox.setAutoFillBackground(True)
-                treeWidget.setItemWidget(w, 0, checkbox)
+                tree.setItemWidget(item, 0, QCheckBox(key))
+                item.setExpanded(True)
+        
+        tree = QTreeWidget()
+        tree.setColumnCount(2)
+        tree.setHeaderLabels(["",""])
+        root = tree.invisibleRootItem()
+        recursiveBuild(root, tabData)
 
-        treeWidget = QTreeWidget()
-        treeWidget.setColumnCount(2)
-        treeWidget.setHeaderLabels(["",""])
-
-        for key,val in tabData.items():
-            # create structure
-            top = QTreeWidgetItem([key])
-            treeWidget.addTopLevelItem(top)
-            recursive_build(treeWidget, val, top)
-
-            # create actual widget
-            checkbox = QCheckBox(key)
-            checkbox.setAutoFillBackground(True)
-            treeWidget.setItemWidget(top, 0, checkbox)
-            treeWidget.expandItem(top)
-
-        self.tabList.addTab(treeWidget, tabName)
+        self.tabList.addTab(tree, tabName)
 
     def tabToDict(self, index : int) -> dict:
 
@@ -321,7 +322,8 @@ class UI(QMainWindow):
                 key = tree.itemWidget(child, 0).text()
                 val = None
                 if( child.childCount() == 0 ):
-                    val = child.text(1)
+                    val = tree.itemWidget(child,1).layout().itemAt(0).widget().text()
+                    val = parser.toJSONValue(val)
                 else:
                     val = treeToDict(tree,child)
                 resDict[key] = val
