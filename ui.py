@@ -144,7 +144,7 @@ class UI(QMainWindow):
         self.toolBar.addAction(self.expandAllAction)
         self.expandAllAction.triggered.connect(self.expandAllActionHandler)
 
-    def shortcutsActionHandler(self):
+    def shortcutsActionHandler(self) -> None:
         Dialog.showShortcuts(self)
 
     def hideValuesActionHandler(self) -> None:
@@ -152,25 +152,6 @@ class UI(QMainWindow):
 
     def showValuesActionHandler(self) -> None:
         self.setCurrentValuesVisibility(True)
-
-    def setCurrentValuesVisibility(self, visible : bool) -> None:
-        if( self.tabList.count() == 0 ):
-            return
-
-        tree = self.tabList.currentWidget()
-        itr = QTreeWidgetItemIterator(tree)
-        while( itr.value() is not None ):
-            item = itr.value()
-            if( item.childCount() != 0 ):
-                itr += 1
-                continue
-
-            valLabel = tree.itemWidget(item,1).layout().itemAt(0).widget()
-            if( visible ):
-                valLabel.show()
-            else:
-                valLabel.hide()
-            itr += 1
 
     def setMenuBarFontActionHandler(self) -> None:
         _, font = QFontDialog.getFont(self.mainFont, self, "Choose Font")
@@ -330,6 +311,25 @@ class UI(QMainWindow):
         while( itr.value() is not None ):
             item = itr.value()
             item.setExpanded(expand)
+            itr += 1
+
+    def setCurrentValuesVisibility(self, visible : bool) -> None:
+        if( self.tabList.count() == 0 ):
+            return
+
+        tree = self.tabList.currentWidget()
+        itr = QTreeWidgetItemIterator(tree)
+        while( itr.value() is not None ):
+            item = itr.value()
+            if( item.childCount() != 0 ):
+                itr += 1
+                continue
+
+            valLabel = tree.itemWidget(item,1).layout().itemAt(0).widget()
+            if( visible ):
+                valLabel.show()
+            else:
+                valLabel.hide()
             itr += 1
 
     def createTab(self, tabName : str, tabData : dict) -> None:
@@ -499,7 +499,7 @@ class Dialog():
     def showShortcuts(parent : UI) -> None:
         dlg = QDialog(parent)
         dlg.setWindowTitle("Shortcuts")
-        dlg.setGeometry(400,400,250,100)
+        dlg.setGeometry(400,400,300,100)
         layout = QGridLayout(dlg)
         
         shortcuts = [
