@@ -5,7 +5,7 @@ def toText(val):
 		return val
 
 	if( type(val) is list ):
-		return ", ".join(val)
+		return ",".join(val)
 
 	return str(val)
 
@@ -26,6 +26,13 @@ def toJSONValue(val):
 			return float(val)
 
 	if( val.count(',') > 0 ):
-		return val.split(',')
+		valList = val.split(',')
+		for idx,s in enumerate(valList):
+			valList[idx] = s.strip()
+		return valList
 
 	return val
+	
+	
+	
+
