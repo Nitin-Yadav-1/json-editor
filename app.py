@@ -84,7 +84,18 @@ class CaseEditor:
                 self.model.closeFile(index)
                 self.ui.tabList.removeTab(index)
         else:
-            self.model.saveFile(index, self.ui.tabToDict(index))
+            if( not self.model.areChangesSaved(index) ):
+                selected = QMessageBox.warning(
+                    self.ui,
+                    "Save changes",
+                    "Save changes before closing the file?",
+                    (QMessageBox.Ok | QMessageBox.Cancel | QMessageBox.Discard),
+                    QMessageBox.Cancel
+                )
+                if( selected == QMessageBox.Cancel):
+                    return
+                if( selected == QMessageBox.Ok):
+                    self.model.saveFile(index, self.ui.tabToDict(index))
             self.model.closeFile(index)
             self.ui.tabList.removeTab(index)
 
