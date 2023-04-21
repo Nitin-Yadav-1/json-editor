@@ -30,8 +30,9 @@ class Model:
     def saveAsFile(self, index : int, dataDict : dict, filePath : str) -> None:
         with open(filePath, "w") as f:
             f.write(json.dumps(dataDict, indent=4))
-        self.tabDataList[index].filePath = filePath
-        self.setChangesSaved(True, index)
+        if( self.isUntitledFile(index) ):
+            self.tabDataList[index].filePath = filePath
+            self.setChangesSaved(True, index)
 
     def isUntitledFile(self, index : int) -> bool:
         return ( self.tabDataList[index].filePath == "" )

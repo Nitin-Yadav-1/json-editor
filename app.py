@@ -129,41 +129,19 @@ class CaseEditor:
             "",
             "Text Files(*.json)"
         )
-        
-        if( filePath != "" ):
-            currIndex = self.ui.tabList.currentIndex()
-            dataDict = self.ui.tabToDict(currIndex)
-            self.model.saveAsFile(currIndex, dataDict, filePath)
+
+        if( filePath == "" ):
+            return
+
+        if( self.model.isUntitledFile(currIndex) ):
             self.ui.setTabName(currIndex, filePath.split("/")[-1])
-            self.ui.statusBar.showMessage(f"File Saved As : {filePath}", TEMP_MSG_TIMEOUT)
+            
+        dataDict = self.ui.tabToDict(currIndex)
+        self.model.saveAsFile(currIndex, dataDict, filePath)
+        self.ui.statusBar.showMessage(f"File Saved As : {filePath}", TEMP_MSG_TIMEOUT)
 
     def closeActionHandler(self):
         self.ui.close()
-        # # maybe we can attempt to save and close all files before closing
-
-        # # check for updated file
-        # unsavedFilesExist = False
-        # closeWindow = True
-
-        # for tab in self.model.tabDataList:
-        #     if( tab.isChanged ):
-        #         unsavedFilesExist = True
-        #         break
-
-        # if( unsavedFilesExist ):
-        #     dlg = QMessageBox(self.ui)
-        #     dlg.setWindowTitle("Unsaved Files")
-        #     dlg.setText("All progress made in unsaved files will be lost!")
-        #     dlg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Discard)
-        #     dlg.setIcon(QMessageBox.Warning)
-        #     button = dlg.exec()
-
-        #     if( button == QMessageBox.Cancel ):
-        #         closeWindow = False
-
-        # # close window
-        # if( closeWindow ):
-        #     self.ui.close()
 
 
 if __name__ == "__main__":
