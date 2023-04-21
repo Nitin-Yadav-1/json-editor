@@ -22,7 +22,8 @@ from PySide6.QtWidgets import (
 
 from PySide6.QtGui import (
     QFont,
-    QAction
+    QAction,
+    QKeySequence
 )
 
 import parser
@@ -32,6 +33,7 @@ class UI(QMainWindow):
     def __init__(self):
         super().__init__()
         self._createProperties()
+        self._setShortcuts()
         self._setupMenuBar()
         self._setupToolBar()
         self.setWindowTitle("OpenFoam Case Editor")
@@ -58,6 +60,7 @@ class UI(QMainWindow):
         self.saveAction = QAction("&Save", self)
         self.saveAsAction = QAction("S&ave As", self)
         self.closeAction = QAction("&Close", self)
+        self.shortcutsAction = QAction("Shortcuts", self)
 
         # edit menu actions
         self.deleteAction = QAction("&Delete", self)
@@ -67,12 +70,32 @@ class UI(QMainWindow):
         # view menu actions
         self.setMenuBarFontAction = QAction("Set &Menu Font", self)
         self.setBodyFontAction = QAction("Set &Body Font", self)
+        self.hideValuesAction = QAction("&Hide Values", self)
+        self.showValuesAction = QAction("&Show Values", self)
 
         # toolbar actions
         self.selectAllAction = QAction("Select All", self)
         self.unselectAllAction = QAction("Unselect All", self)
         self.collapseAllAction = QAction("Collapse All", self)
         self.expandAllAction = QAction("Expand All", self)
+
+    def _setShortcuts(self):
+        self.newAction.setShortcut(QKeySequence.New) # Ctrl+N
+        self.openAction.setShortcut(QKeySequence.Open) # Ctrl+O 
+        self.saveAction.setShortcut(QKeySequence.Save) # Ctrl+S
+        self.saveAsAction.setShortcut(QKeySequence.SaveAs) # Ctrl+Shift+S
+
+        self.deleteAction.setShortcut(QKeySequence.Delete) # del, Ctrl+D
+        self.insertAction.setShortcut(QKeySequence("Ctrl+I"))
+        self.replaceAction.setShortcut(QKeySequence("Ctrl+R"))
+
+        self.selectAllAction.setShortcut(QKeySequence.SelectAll) # Ctrl+A
+        self.unselectAllAction.setShortcut(QKeySequence("Ctrl+Shift+A"))
+        self.collapseAllAction.setShortcut(QKeySequence("Ctrl+Tab"))
+        self.expandAllAction.setShortcut(QKeySequence("Ctrl+Shift+Tab"))
+
+        self.hideValuesAction.setShortcut(QKeySequence("Ctrl+Shift+V"))
+        self.showValuesAction.setShortcut(QKeySequence("Ctrl+Shift+B"))
 
     def _setupMenuBar(self):
         # create 'File' menu
@@ -81,7 +104,9 @@ class UI(QMainWindow):
         self.fileMenu.addAction(self.openAction)
         self.fileMenu.addAction(self.saveAction)
         self.fileMenu.addAction(self.saveAsAction)
+        self.fileMenu.addAction(self.shortcutsAction)
         self.fileMenu.addAction(self.closeAction)
+        self.shortcutsAction.triggered.connect(self.shortcutsActionHandler)
         
         # create 'Edit' menu
         self.editMenu = self.menuBar.addMenu("&Edit")
@@ -93,36 +118,59 @@ class UI(QMainWindow):
         self.viewMenu = self.menuBar.addMenu("&View")
         self.viewMenu.addAction(self.setMenuBarFontAction)
         self.viewMenu.addAction(self.setBodyFontAction)
+        self.viewMenu.addAction(self.hideValuesAction)
+        self.viewMenu.addAction(self.showValuesAction)
         self.setMenuBarFontAction.triggered.connect(self.setMenuBarFontActionHandler)
         self.setBodyFontAction.triggered.connect(self.setBodyFontActionHandler)
+        self.hideValuesAction.triggered.connect(self.hideValuesActionHandler)
+        self.showValuesAction.triggered.connect(self.showValuesActionHandler)
 
     def _setupToolBar(self):
         self.toolBar.setMovable(False)
         self.toolBar.setFloatable(False)
 
-        selectAllButton = QPushButton("Select All")
+        self.toolBar.addAction(self.selectAllAction)
         self.selectAllAction.triggered.connect(self.selectAllActionHandler)
-        selectAllButton.clicked.connect(self.selectAllAction.trigger)
-        self.toolBar.addWidget(selectAllButton)
         self.toolBar.addSeparator()
 
-        unselectAllButton = QPushButton("Unselect All")
+        self.toolBar.addAction(self.unselectAllAction)
         self.unselectAllAction.triggered.connect(self.unselectAllActionHandler)
-        unselectAllButton.clicked.connect(self.unselectAllAction.trigger)
-        self.toolBar.addWidget(unselectAllButton)
         self.toolBar.addSeparator()
 
-        collapseAllButton = QPushButton("Collapse All")
+        self.toolBar.addAction(self.collapseAllAction)
         self.collapseAllAction.triggered.connect(self.collapseAllActionHandler)
-        collapseAllButton.clicked.connect(self.collapseAllAction.trigger)
-        self.toolBar.addWidget(collapseAllButton)
         self.toolBar.addSeparator()
 
-        expandAllButton = QPushButton("Expand All")
+        self.toolBar.addAction(self.expandAllAction)
         self.expandAllAction.triggered.connect(self.expandAllActionHandler)
-        expandAllButton.clicked.connect(self.expandAllAction.trigger)
-        self.toolBar.addWidget(expandAllButton)
-        self.toolBar.addSeparator()
+
+    def shortcutsActionHandler(self):
+        Dialog.showShortcuts(self)
+
+    def hideValuesActionHandler(self) -> None:
+        self.setCurrentValuesVisibility(False)
+
+    def showValuesActionHandler(self) -> None:
+        self.setCurrentValuesVisibility(True)
+
+    def setCurrentValuesVisibility(self, visible : bool) -> None:
+        if( self.tabList.count() == 0 ):
+            return
+
+        tree = self.tabList.currentWidget()
+        itr = QTreeWidgetItemIterator(tree)
+        while( itr.value() is not None ):
+            item = itr.value()
+            if( item.childCount() != 0 ):
+                itr += 1
+                continue
+
+            valLabel = tree.itemWidget(item,1).layout().itemAt(0).widget()
+            if( visible ):
+                valLabel.show()
+            else:
+                valLabel.hide()
+            itr += 1
 
     def setMenuBarFontActionHandler(self) -> None:
         _, font = QFontDialog.getFont(self.mainFont, self, "Choose Font")
@@ -446,3 +494,32 @@ class Dialog():
         )
 
         return (selectedButton == QMessageBox.Ok)
+
+    @staticmethod
+    def showShortcuts(parent : UI) -> None:
+        dlg = QDialog(parent)
+        dlg.setWindowTitle("Shortcuts")
+        dlg.setGeometry(400,400,250,100)
+        layout = QGridLayout(dlg)
+        
+        shortcuts = [
+            ("New", "Ctrl + N"),
+            ("Open", "Ctrl + O"),
+            ("Save", "Ctrl + S"),
+            ("Save As", "Ctrl + Shift + S"),
+            ("Delete", "del"),
+            ("Insert", "Ctrl + I"),
+            ("Replace", "Ctrl + R"),
+            ("Select All", "Ctrl + A"),
+            ("Unselect All", "Ctrl + Shift + A"),
+            ("Collapse All", "Ctrl + Tab"),
+            ("Expand All", "Ctrl + Shift + Tab"),
+            ("Hide Values", "Ctrl + Shift + V"),
+            ("Show Values", "Ctrl + Shift + B")
+        ]
+
+        for row,item in enumerate(shortcuts):
+            layout.addWidget(QLabel(item[0]), row, 0)
+            layout.addWidget(QLabel(item[1]), row, 1)
+
+        dlg.exec()
