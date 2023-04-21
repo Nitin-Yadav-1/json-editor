@@ -46,5 +46,11 @@ class Model:
     def filePath(self, index : int) -> str:
         return self.tabDataList[index].filePath
 
+    def isFileOpen(self, filePath : str) -> bool:
+        for tabData in self.tabDataList:
+            if( tabData.filePath == filePath ):
+                return True
+        return False
+
     def closeFile(self, index : int) -> None:
         self.tabDataList.pop(index)

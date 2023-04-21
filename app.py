@@ -100,11 +100,16 @@ class CaseEditor:
             "Text files ( *.json )",
         )
 
-        if( filePath != "" ):
-            tabName = filePath.split("/")[-1]
-            tabData = self.model.openFile(filePath)
-            self.ui.createTab(tabName, tabData)
-            self.ui.statusBar.showMessage(f"File opened : {filePath}", TEMP_MSG_TIMEOUT)
+        if( filePath == "" ):
+            return
+
+        if( self.model.isFileOpen(filePath) ):
+            return
+    
+        tabName = filePath.split("/")[-1]
+        tabData = self.model.openFile(filePath)
+        self.ui.createTab(tabName, tabData)
+        self.ui.statusBar.showMessage(f"File opened : {filePath}", TEMP_MSG_TIMEOUT)
 
     def saveActionHandler(self):
         currIndex = self.ui.tabList.currentIndex()
