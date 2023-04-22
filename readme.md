@@ -7,7 +7,9 @@ JSON 'array of objects' is not supported.
 
 
 ## How to run
-[.] Clone the repo
-[.] Create and activate virtual environment
-[.] Install pyside6 - ( pip install pyside6)
-[.] run - (python app.py)
+### Clone the repo
+### Create and activate virtual environment
+### Install pyside6
+  pip install pyside6
+### run
+  python app.py
