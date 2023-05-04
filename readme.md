@@ -13,3 +13,9 @@ JSON 'array of objects' is not supported.
     > pip install pyside6
 4. run
    > python app.py
+
+## Screenshots
+[]('./screenshots/1.png')
+[]('./screenshots/2.png')
+[]('./screenshots/3.png')
+[]('./screenshots/4.png')
